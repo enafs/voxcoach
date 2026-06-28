@@ -86,13 +86,15 @@ class Processor:
         # Cada gatilho produz UM insight; o processor decide a camada (D09).
         if ev.type is EventType.PLAYER_DEATH:
             # Dizer "você morreu" é óbvio (ruído); o valor está no conselho → ANALYSIS.
+            killer = _champion_of(ev.actor, state)
+            morte = f"o jogador morreu para {killer}" if killer else "o jogador morreu"
             out.append(
                 Insight(
                     "post_death_advice",
                     Layer.ANALYSIS,
                     Priority.HIGH,
-                    context="o jogador morreu; oriente o uso do tempo de respawn e o "
-                    "reposicionamento ao voltar",
+                    context=f"{morte}; dê uma orientação prática para o tempo de respawn "
+                    "e o reposicionamento ao voltar (onde farmar, recuar ou agrupar)",
                 )
             )
 
@@ -155,6 +157,18 @@ def _crossed_below(prev, now, ratio: float) -> bool:
     if before is None or after is None:
         return False
     return before >= ratio > after
+
+
+def _champion_of(name: str | None, state: GameState) -> str | None:
+    """Resolve o campeão a partir do nome do jogador (para contexto do LLM)."""
+    if not name:
+        return None
+    if name == state.player.name:
+        return state.player.champion
+    for e in (*state.enemies, *state.teammates):
+        if e.name == name:
+            return e.champion
+    return None
 
 
 def _side_of(name: str | None, state: GameState) -> Team | None:

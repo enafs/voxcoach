@@ -47,9 +47,11 @@ def test_build_context_without_hint_omits_situation():
     assert "Situação:" not in ctx
 
 
-def test_system_prompt_is_short_and_ptbr():
+def test_system_prompt_is_short_ptbr_and_clean():
     assert "português" in SYSTEM_PROMPT.lower()
-    assert "1–2 frases" in SYSTEM_PROMPT
+    assert "frase curta" in SYSTEM_PROMPT.lower()
+    # Deve proibir explicitamente linguagem ofensiva.
+    assert "palavr" in SYSTEM_PROMPT.lower()  # palavrões/palavrão
 
 
 # --------------------------------------------------------------------------- #

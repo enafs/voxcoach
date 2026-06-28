@@ -1,0 +1,105 @@
+[33mcommit a504eb2e489a72c9839284839b423c657adf1c52[m
+Author: Erick Feitosa <erickfeitosa09@gmail.com>
+Date:   Sun Jun 28 00:51:48 2026 -0300
+
+    feat: system tray (US01) + voz real, fechando o MVP funcional
+    
+    - main.py: entrypoint com system tray (pystray); menu Iniciar/Parar/Sair.
+      pystray e Pillow importados de forma tardia.
+    - engine.py: roda o Orchestrator em thread propria com event loop asyncio (D11);
+      comandos start/stop/shutdown thread-safe. Tray <-> engine desacoplados.
+    - voice.py: VoiceSpeaker liga EdgeTTSProvider + AudioPlayer ao Speaker; cada
+      fala interrompe a anterior (ultimo insight ganha).
+    - factory.py: build_llm(settings) compartilhado entre cli e main (DRY).
+    - orchestrator: aclose() para liberar o adapter no shutdown.
+    - pyproject: entrypoints `voxcoach` (CLI) e `voxcoach-app` (tray).
+    
+    47 testes passando (Engine e VoiceSpeaker cobertos com dubles; tray nao e
+    testado por ser GUI/hardware).
+    
+    Co-Authored-By: [1;31mClaude[m Opus 4.8 <noreply@anthropic.com>
+
+[33mcommit 981c4e004e22696585e350bcec9aeb4a7f5ef1b7[m
+Author: Erick Feitosa <erickfeitosa09@gmail.com>
+Date:   Sun Jun 28 00:44:01 2026 -0300
+
+    feat: endurecer normalizacao de LoL para a era Riot ID + script de captura
+    
+    Validado contra captura real de partida (Live Client Data API):
+    - casar o jogador pelo CONJUNTO de identidades (summonerName / riotId /
+      riotIdGameName), nao por um nome so -> robusto a deprecacao de summonerName
+    - eventos (kill/death/assist) comparados contra esse conjunto, cobrindo o caso
+      de eventos usarem o nome limpo (sem #TAG)
+    - nome de exibicao/voz passa a usar riotIdGameName (sem tag)
+    - scripts/capture_fixture.py: captura allgamedata de uma partida ativa
+    - teste de regressao do cenario Riot ID
+    
+    Capturas reais (*.real.json) ficam gitignored por conterem Riot IDs.
+    42 testes passando.
+    
+    Co-Authored-By: [1;31mClaude[m Opus 4.8 <noreply@anthropic.com>
+
+[33mcommit a601fcb476951d81bf1675abbdc919203b241585[m
+Author: Erick Feitosa <erickfeitosa09@gmail.com>
+Date:   Sun Jun 28 00:34:24 2026 -0300
+
+    feat: pipeline VoxCoach ponta a ponta (LoL -> processor -> LLM -> TTS -> CLI)
+    
+    Vertical slice testavel sem jogo aberto (deps externas mockadas nos testes):
+    
+    - scaffold: pyproject (hatchling, src layout), config (pydantic-settings),
+      models.py (GameState normalizado em dataclasses), interfaces base
+      (GameAdapter, LLMProvider, TTSProvider)
+    - adapters/lol.py: Live Client Data API -> GameState (normalizacao pura,
+      TLS self-signed, eventos relativos ao jogador)
+    - processor/: deteccao de eventos (diff de ticks) + gatilhos anti-spam;
+      cada gatilho gera UM insight classificado em fato (Camada 1) ou
+      analise (Camada 2) (D09)
+    - llm/: [1;31mClaude[mProvider (import tardio da SDK) + prompts (GameState -> contexto)
+    - tts/: EdgeTTSProvider (sintese) + AudioPlayer (sounddevice, interrupcao);
+      MP3 do edge-tts decodificado via soundfile (validado, libsndfile 1.2.2)
+    - orchestrator.py: loop de sessao + abstracao Speaker (console <-> voz)
+    - cli.py / __main__.py: --replay (dry-run sem key) e modo live
+    
+    41 testes passando.
+
+[33mcommit 96595730e016894a13aa9b20507a998ee67d05f3[m
+Author: Erick Feitosa <erickfeitosa09@gmail.com>
+Date:   Sun Jun 28 00:34:24 2026 -0300
+
+    feat: pipeline VoxCoach ponta a ponta (LoL -> processor -> LLM -> TTS -> CLI)
+    
+    Vertical slice testavel sem jogo aberto (deps externas mockadas nos testes):
+    
+    - scaffold: pyproject (hatchling, src layout), config (pydantic-settings),
+      models.py (GameState normalizado em dataclasses), interfaces base
+      (GameAdapter, LLMProvider, TTSProvider)
+    - adapters/lol.py: Live Client Data API -> GameState (normalizacao pura,
+      TLS self-signed, eventos relativos ao jogador)
+    - processor/: deteccao de eventos (diff de ticks) + gatilhos anti-spam;
+      cada gatilho gera UM insight classificado em fato (Camada 1) ou
+      analise (Camada 2) (D09)
+    - llm/: [1;31mClaude[mProvider (import tardio da SDK) + prompts (GameState -> contexto)
+    - tts/: EdgeTTSProvider (sintese) + AudioPlayer (sounddevice, interrupcao);
+      MP3 do edge-tts decodificado via soundfile (validado, libsndfile 1.2.2)
+    - orchestrator.py: loop de sessao + abstracao Speaker (console <-> voz)
+    - cli.py / __main__.py: --replay (dry-run sem key) e modo live
+    
+    41 testes passando.
+    
+    Co-Authored-By: [1;31mClaude[m Opus 4.8 <noreply@anthropic.com>
+
+[33mcommit 2b38e1f7948782ba87fa5a823122f054177c5277[m
+Author: Erick Feitosa <erickfeitosa09@gmail.com>
+Date:   Sun Jun 28 00:33:55 2026 -0300
+
+    docs: revisar SDD e adicionar CLAUDE.md, DECISIONS.md e BDDs
+    
+    - SDD: decisoes D09-D11 (camadas de processamento fato/analise,
+      sounddevice+soundfile, concorrencia hibrida tray/async), nova secao 3.2
+      de estrategia de latencia, riscos atualizados (MP3xsoundfile resolvido)
+    - CLAUDE.md: ancora de sessao (arquitetura, convencoes, status)
+    - DECISIONS.md: registro ADR D01-D11
+    - docs/stories/: criterios de aceite BDD (Given/When/Then) das US01-US08
+    
+    Co-Authored-By: [1;31mClaude[m Opus 4.8 <noreply@anthropic.com>
