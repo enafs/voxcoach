@@ -32,8 +32,9 @@ dev = [
     "ruff>=0.5",
 ]
 
-# [project.scripts]
-# voxcoach = "voxcoach.main:main"   # habilitar quando main.py existir
+[project.scripts]
+voxcoach = "voxcoach.cli:main"          # CLI: --replay (dry-run) / modo live (texto)
+voxcoach-app = "voxcoach.main:main"     # app com system tray + voz
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/voxcoach"]

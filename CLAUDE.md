@@ -41,9 +41,13 @@ da engine é async. Tray ↔ engine se comunicam por fila thread-safe.
 ```
 src/voxcoach/
 ├── __init__.py
-├── __main__.py          # python -m voxcoach
+├── __main__.py          # python -m voxcoach  -> CLI
+├── main.py              # entrypoint do app: system tray (pystray) + voz
 ├── cli.py               # CLI: --replay (dry-run) e modo live; ConsoleSpeaker
+├── engine.py            # roda o Orchestrator em thread+event loop (D11)
+├── voice.py             # VoiceSpeaker: liga TTS real ao Speaker
 ├── orchestrator.py      # loop de sessão + Speaker (abstração de saída)
+├── factory.py           # build_llm(settings) — compartilhado cli/main
 ├── config.py            # pydantic-settings (env VOXCOACH_*)
 ├── models.py            # GameState normalizado (dataclasses) — contrato central
 ├── adapters/{base,lol}.py       # GameAdapter + LoLAdapter (Live API)
@@ -52,9 +56,8 @@ src/voxcoach/
 └── tts/{base,edge,player}.py           # TTSProvider + edge-tts + AudioPlayer
 ```
 
-Ainda **não** existem (adiados de propósito p/ evitar código morto):
-`main.py` (entrypoint + tray), `adapters/cs2.py`, `llm/openai.py`,
-`tts/elevenlabs.py`.
+Ainda **não** existem (adiados p/ evitar código morto):
+`adapters/cs2.py`, `llm/openai.py`, `tts/elevenlabs.py`.
 
 ## Setup e comandos
 
@@ -80,23 +83,24 @@ Config: copie `.env.example` → `.env` e preencha sua API key (D05).
 
 ## Status atual
 
-Fase: **vertical slice CONCLUÍDO** (SDD §10, passo 4). Pipeline ponta a ponta:
-adapter → processor → triggers → llm → speaker, orquestrado em `orchestrator.py`
-e exposto via `cli.py`. **41 testes passando**. Risco MP3×soundfile **resolvido**.
+Fase: **MVP funcional COMPLETO** (SDD §10, passos 4 e 5). Pipeline ponta a ponta
+adapter → processor → triggers → llm → voz, com **system tray** (`main.py`) e
+engine em thread própria (`engine.py`, D11). **47 testes passando**. Normalização
+de LoL validada contra **partida real**. Risco MP3×soundfile resolvido.
 
-Rodar a demo (sem jogo, sem key):
-`PYTHONPATH=src ./.venv/Scripts/python.exe -m voxcoach --replay tests/fixtures/allgamedata.json`
-
-Saída atual é **texto no console** (`ConsoleSpeaker`). A fala por voz (TTS já
-pronto em `tts/`) entra junto com o tray, via um `VoiceSpeaker`.
+Como rodar:
+- Demo sem jogo/sem key: `python -m voxcoach --replay tests/fixtures/allgamedata.json`
+- App com tray + voz (precisa `pip install -e .` e key no `.env`): `voxcoach-app`
+  (ou `python -m voxcoach.main`). Menu do tray: Iniciar / Parar / Sair.
 
 Limitações conhecidas (intencionais no MVP):
-- Fala **um insight por tick**; se uma ANALYSIS de prioridade alta sai sem LLM
-  configurado, aquele tick fica em silêncio (não cai para um FACT menor).
+- Fala **um insight por tick**; ANALYSIS de prioridade alta sem LLM configurado
+  deixa o tick em silêncio (não cai para um FACT menor).
 - Detecção de combate = só `low_health` (Live API não dá posições).
+- Tray sem indicação visual de estado ativo/idle (só os itens de menu).
 
-Próximo: **`main.py`** — entrypoint + **system tray** (US01, D03) e `VoiceSpeaker`
-ligando o TTS real. Tray roda em thread própria; engine no event loop (D11).
+Próximos candidatos (pós-MVP): captura/uso de fixtures reais variadas, status
+visual no tray, mais detectores de Camada 1/2, adapter de CS2 (GSI).
 
 Rodar testes: `./.venv/Scripts/python.exe -m pytest -q` (venv com httpx/pytest/
 pytest-asyncio/respx; deps pesadas como sounddevice/pystray só no slice de áudio/tray).

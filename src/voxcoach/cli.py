@@ -44,17 +44,6 @@ class _StubLLM(LLMProvider):
         return f"(análise simulada) considere: {situacao}"
 
 
-def _build_llm(settings):
-    """Cria o provider real conforme a config; None se não houver key."""
-    from voxcoach.config import LLMBackend
-
-    if settings.llm_backend is LLMBackend.CLAUDE and settings.anthropic_api_key:
-        from voxcoach.llm.claude import ClaudeProvider
-
-        return ClaudeProvider(api_key=settings.anthropic_api_key, model=settings.llm_model)
-    return None
-
-
 async def _run_replay(path: Path, ticks: int) -> None:
     data = json.loads(path.read_text(encoding="utf-8"))
     state = normalize_all_game_data(data)
@@ -80,6 +69,7 @@ async def _run_replay(path: Path, ticks: int) -> None:
 
 async def _run_live() -> None:
     from voxcoach.config import load_settings
+    from voxcoach.factory import build_llm
 
     settings = load_settings()
     adapter = LoLAdapter()
@@ -88,7 +78,7 @@ async def _run_live() -> None:
         processor=Processor(),
         policy=TriggerPolicy(cooldown_seconds=settings.speak_cooldown_seconds),
         speaker=ConsoleSpeaker(),
-        llm=_build_llm(settings),
+        llm=build_llm(settings),
         max_tokens=settings.llm_max_tokens,
         poll_interval=settings.poll_interval_seconds,
     )

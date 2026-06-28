@@ -68,6 +68,10 @@ class Orchestrator:
     def stop(self) -> None:
         self._running = False
 
+    async def aclose(self) -> None:
+        """Libera recursos da engine (ex.: cliente HTTP do adapter)."""
+        await self._adapter.close()
+
     async def run(self) -> None:
         """Loop principal: detecta partida, faz polling, encerra ao fim."""
         self._running = True
