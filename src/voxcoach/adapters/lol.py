@@ -88,17 +88,20 @@ def normalize_all_game_data(data: dict[str, Any]) -> GameState | None:
     all_players = data.get("allPlayers") or []
     game_data = data.get("gameData") or {}
 
-    active_name = _active_player_name(active)
-    me = _find_player(all_players, active_name)
+    me = _find_player(all_players, active)
     if me is None:
         return None
 
+    # Conjunto de identidades do jogador local. Robusto à transição de Riot ID:
+    # summonerName traz o "Nome#TAG", riotIdGameName o nome limpo; eventos podem
+    # usar qualquer forma. Comparar contra o conjunto evita classificar errado.
+    my_names = _identities(me) | _identities(active)
     my_team = me.get("team")
     stats = active.get("championStats") or {}
     scores = me.get("scores") or {}
 
     player = PlayerState(
-        name=active_name or me.get("summonerName", "unknown"),
+        name=_display_name(me),
         champion=me.get("championName"),
         level=int(active.get("level", me.get("level", 1))),
         health=float(stats.get("currentHealth", 0.0)),
@@ -120,7 +123,7 @@ def normalize_all_game_data(data: dict[str, Any]) -> GameState | None:
             continue
         team = Team.ALLY if p.get("team") == my_team else Team.ENEMY
         entity = Entity(
-            name=p.get("summonerName") or p.get("riotIdGameName") or "unknown",
+            name=_display_name(p),
             team=team,
             champion=p.get("championName"),
             level=p.get("level"),
@@ -129,7 +132,7 @@ def normalize_all_game_data(data: dict[str, Any]) -> GameState | None:
         (teammates if team is Team.ALLY else enemies).append(entity)
 
     events = _normalize_events(
-        (data.get("events") or {}).get("Events", []), active_name
+        (data.get("events") or {}).get("Events", []), my_names
     )
 
     return GameState(
@@ -144,24 +147,30 @@ def normalize_all_game_data(data: dict[str, Any]) -> GameState | None:
     )
 
 
-def _active_player_name(active: dict[str, Any]) -> str | None:
-    """Nome do jogador local. Em patches recentes pode vir como Riot ID."""
-    return active.get("summonerName") or active.get("riotIdGameName")
+def _identities(d: dict[str, Any]) -> set[str]:
+    """Todas as formas de identificar um jogador (Nome#TAG, Riot ID, nome limpo)."""
+    return {d.get("summonerName"), d.get("riotId"), d.get("riotIdGameName")} - {None, ""}
+
+
+def _display_name(d: dict[str, Any]) -> str:
+    """Nome para exibição/voz: prefere o nome limpo, sem a tag."""
+    return d.get("riotIdGameName") or d.get("summonerName") or "unknown"
 
 
 def _find_player(
-    players: list[dict[str, Any]], name: str | None
+    players: list[dict[str, Any]], active: dict[str, Any]
 ) -> dict[str, Any] | None:
-    if not name:
+    target = _identities(active)
+    if not target:
         return None
     for p in players:
-        if p.get("summonerName") == name or p.get("riotIdGameName") == name:
+        if _identities(p) & target:
             return p
     return None
 
 
 def _normalize_events(
-    raw_events: list[dict[str, Any]], active_name: str | None
+    raw_events: list[dict[str, Any]], my_names: set[str]
 ) -> list[GameEvent]:
     out: list[GameEvent] = []
     for ev in raw_events:
@@ -171,11 +180,11 @@ def _normalize_events(
         etype = EventType.OTHER
 
         if name == "ChampionKill":
-            if target == active_name:
+            if target in my_names:
                 etype = EventType.PLAYER_DEATH
-            elif actor == active_name:
+            elif actor in my_names:
                 etype = EventType.PLAYER_KILL
-            elif active_name in (ev.get("Assisters") or []):
+            elif my_names & set(ev.get("Assisters") or []):
                 etype = EventType.PLAYER_ASSIST
         elif name in _OBJECTIVE_EVENTS:
             etype = EventType.OBJECTIVE_TAKEN

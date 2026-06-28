@@ -14,6 +14,9 @@ env/
 # Config local / segredos
 .env
 
+# Capturas reais de partida (contêm Riot IDs) — manter apenas local
+tests/fixtures/*.real.json
+
 # Ferramentas
 .pytest_cache/
 .ruff_cache/

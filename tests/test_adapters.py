@@ -87,6 +87,45 @@ def test_events_mapped_relative_to_player(allgamedata):
     assert any(e.data.get("EventName") == "ChampionKill" for e in others)
 
 
+def test_riot_id_era_matching_and_events():
+    """summonerName vazio, identidade via riotId/riotIdGameName, eventos no nome limpo."""
+    data = {
+        "activePlayer": {
+            "summonerName": "ZenOh#enafs",
+            "riotId": "ZenOh#enafs",
+            "riotIdGameName": "ZenOh",
+            "level": 3,
+            "currentGold": 100.0,
+            "championStats": {"currentHealth": 500.0, "maxHealth": 600.0},
+        },
+        "allPlayers": [
+            {  # eu — summonerName vazio (patch que deprecou); casa por riotId
+                "summonerName": "", "riotId": "ZenOh#enafs", "riotIdGameName": "ZenOh",
+                "championName": "Quinn", "team": "ORDER", "isDead": False,
+                "scores": {"kills": 2, "deaths": 1, "assists": 0}, "items": [],
+            },
+            {
+                "summonerName": "", "riotId": "Rival#BR1", "riotIdGameName": "Rival",
+                "championName": "Zed", "team": "CHAOS", "isDead": False,
+                "scores": {}, "items": [],
+            },
+        ],
+        # Evento usa o nome LIMPO ("ZenOh"), não o "ZenOh#enafs".
+        "events": {"Events": [
+            {"EventName": "ChampionKill", "EventTime": 90.0,
+             "KillerName": "ZenOh", "VictimName": "Rival", "Assisters": []},
+        ]},
+        "gameData": {"gameTime": 95.0},
+    }
+    state = normalize_all_game_data(data)
+    assert state is not None
+    assert state.player.name == "ZenOh"            # nome limpo, sem tag
+    assert state.player.champion == "Quinn"
+    assert len(state.enemies) == 1
+    kill = state.events[0]
+    assert kill.type is EventType.PLAYER_KILL       # casou apesar do nome limpo
+
+
 def test_returns_none_without_local_player(allgamedata):
     # Espectador: activePlayer não bate com ninguém em allPlayers.
     allgamedata["activePlayer"]["summonerName"] = "NoSuchPlayer"
