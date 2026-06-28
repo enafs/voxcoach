@@ -1,0 +1,167 @@
+{
+  "activePlayer": {
+    "summonerName": "Faker",
+    "riotIdGameName": "Faker",
+    "riotIdTagLine": "KR1",
+    "level": 9,
+    "currentGold": 2456.7,
+    "championStats": {
+      "currentHealth": 1240.5,
+      "maxHealth": 1680.0,
+      "resourceValue": 320.0,
+      "resourceMax": 540.0,
+      "resourceType": "MANA",
+      "abilityPower": 145.0,
+      "armor": 42.0
+    },
+    "abilities": {},
+    "fullRunes": {}
+  },
+  "allPlayers": [
+    {
+      "summonerName": "Faker",
+      "riotIdGameName": "Faker",
+      "championName": "Ahri",
+      "team": "ORDER",
+      "position": "MIDDLE",
+      "level": 9,
+      "isDead": false,
+      "isBot": false,
+      "respawnTimer": 0.0,
+      "scores": { "kills": 3, "deaths": 1, "assists": 5, "creepScore": 142, "wardScore": 8.4 },
+      "items": [
+        { "itemID": 1056, "displayName": "Doran's Ring", "count": 1, "slot": 0 },
+        { "itemID": 6655, "displayName": "Luden's Companion", "count": 1, "slot": 1 },
+        { "itemID": 3020, "displayName": "Sorcerer's Shoes", "count": 1, "slot": 2 }
+      ]
+    },
+    {
+      "summonerName": "JungleDiff",
+      "riotIdGameName": "JungleDiff",
+      "championName": "Lee Sin",
+      "team": "ORDER",
+      "position": "JUNGLE",
+      "level": 8,
+      "isDead": false,
+      "isBot": false,
+      "scores": { "kills": 2, "deaths": 3, "assists": 4, "creepScore": 98, "wardScore": 12.1 },
+      "items": []
+    },
+    {
+      "summonerName": "ADCarry",
+      "riotIdGameName": "ADCarry",
+      "championName": "Jinx",
+      "team": "ORDER",
+      "position": "BOTTOM",
+      "level": 9,
+      "isDead": true,
+      "isBot": false,
+      "respawnTimer": 12.5,
+      "scores": { "kills": 4, "deaths": 2, "assists": 3, "creepScore": 160, "wardScore": 5.0 },
+      "items": []
+    },
+    {
+      "summonerName": "WardBot",
+      "riotIdGameName": "WardBot",
+      "championName": "Thresh",
+      "team": "ORDER",
+      "position": "UTILITY",
+      "level": 7,
+      "isDead": false,
+      "isBot": false,
+      "scores": { "kills": 0, "deaths": 2, "assists": 9, "creepScore": 30, "wardScore": 28.7 },
+      "items": []
+    },
+    {
+      "summonerName": "TopLaner",
+      "riotIdGameName": "TopLaner",
+      "championName": "Garen",
+      "team": "ORDER",
+      "position": "TOP",
+      "level": 9,
+      "isDead": false,
+      "isBot": false,
+      "scores": { "kills": 1, "deaths": 1, "assists": 2, "creepScore": 130, "wardScore": 6.3 },
+      "items": []
+    },
+    {
+      "summonerName": "MidGap",
+      "riotIdGameName": "MidGap",
+      "championName": "Zed",
+      "team": "CHAOS",
+      "position": "MIDDLE",
+      "level": 9,
+      "isDead": true,
+      "isBot": false,
+      "respawnTimer": 8.0,
+      "scores": { "kills": 2, "deaths": 4, "assists": 1, "creepScore": 138, "wardScore": 4.2 },
+      "items": []
+    },
+    {
+      "summonerName": "BugSplat",
+      "riotIdGameName": "BugSplat",
+      "championName": "Kha'Zix",
+      "team": "CHAOS",
+      "position": "JUNGLE",
+      "level": 8,
+      "isDead": false,
+      "isBot": false,
+      "scores": { "kills": 5, "deaths": 2, "assists": 3, "creepScore": 102, "wardScore": 9.8 },
+      "items": []
+    },
+    {
+      "summonerName": "HeadshotPls",
+      "riotIdGameName": "HeadshotPls",
+      "championName": "Caitlyn",
+      "team": "CHAOS",
+      "position": "BOTTOM",
+      "level": 9,
+      "isDead": false,
+      "isBot": false,
+      "scores": { "kills": 6, "deaths": 1, "assists": 2, "creepScore": 171, "wardScore": 5.5 },
+      "items": []
+    },
+    {
+      "summonerName": "ThiccLux",
+      "riotIdGameName": "ThiccLux",
+      "championName": "Lux",
+      "team": "CHAOS",
+      "position": "UTILITY",
+      "level": 7,
+      "isDead": false,
+      "isBot": false,
+      "scores": { "kills": 1, "deaths": 1, "assists": 11, "creepScore": 28, "wardScore": 22.0 },
+      "items": []
+    },
+    {
+      "summonerName": "SpinToWin",
+      "riotIdGameName": "SpinToWin",
+      "championName": "Darius",
+      "team": "CHAOS",
+      "position": "TOP",
+      "level": 9,
+      "isDead": false,
+      "isBot": false,
+      "scores": { "kills": 4, "deaths": 1, "assists": 1, "creepScore": 134, "wardScore": 4.0 },
+      "items": []
+    }
+  ],
+  "events": {
+    "Events": [
+      { "EventID": 0, "EventName": "GameStart", "EventTime": 0.03 },
+      { "EventID": 1, "EventName": "MinionsSpawning", "EventTime": 65.0 },
+      { "EventID": 2, "EventName": "FirstBlood", "EventTime": 180.4, "Recipient": "Faker" },
+      { "EventID": 3, "EventName": "ChampionKill", "EventTime": 180.4, "KillerName": "Faker", "VictimName": "MidGap", "Assisters": [] },
+      { "EventID": 4, "EventName": "ChampionKill", "EventTime": 300.2, "KillerName": "SpinToWin", "VictimName": "Faker", "Assisters": ["BugSplat"] },
+      { "EventID": 5, "EventName": "DragonKill", "EventTime": 420.7, "KillerName": "JungleDiff", "DragonType": "Infernal", "Stolen": "False", "Assisters": ["Faker"] },
+      { "EventID": 6, "EventName": "ChampionKill", "EventTime": 500.9, "KillerName": "BugSplat", "VictimName": "ADCarry", "Assisters": ["MidGap"] }
+    ]
+  },
+  "gameData": {
+    "gameMode": "CLASSIC",
+    "gameTime": 542.3,
+    "mapName": "Map11",
+    "mapNumber": 11,
+    "mapTerrain": "Infernal"
+  }
+}

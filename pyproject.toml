@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "voxcoach"
+version = "0.1.0"
+description = "Coach de jogo em tempo real por voz — lê dados oficiais do jogo e narra insights táticos."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Erick Feitosa" }]
+dependencies = [
+    "httpx>=0.27",          # HTTP async + TLS custom (Live API self-signed)
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "edge-tts>=6.1",        # TTS grátis pt-BR com streaming (D04)
+    "sounddevice>=0.4.6",   # reprodução + interrupção da fala (D10)
+    "soundfile>=0.12.1",    # decodifica áudio (libsndfile)
+    "pystray>=0.19",        # system tray (D03)
+    "Pillow>=10.0",         # ícone do tray
+    "anthropic>=0.40",      # provider de LLM padrão (D05)
+]
+
+[project.optional-dependencies]
+# Provider alternativo — instalado só se o usuário quiser GPT.
+openai = ["openai>=1.40"]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "respx>=0.21",          # mock de httpx para testar o adapter sem partida
+    "ruff>=0.5",
+]
+
+# [project.scripts]
+# voxcoach = "voxcoach.main:main"   # habilitar quando main.py existir
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/voxcoach"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
